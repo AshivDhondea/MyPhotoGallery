@@ -1,21 +1,22 @@
 from galleryorg import gphotos_json
 from galleryorg.utils import data_io
+from galleryorg import geolocation
 from typing import List
 import argparse
+import json
 import os
-import pandas as pd
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str, required=True, help="Google Photos folder.")
-    parser.add_argument("-o", "--output", type=str, required=True, help="Gallery Metadata file")
+    parser.add_argument("-o", "--output", type=str, required=True, help="Gallery metadata folder")
     parser.add_argument("-f", "--function", choices=['i', 'index'], required=True, help="Operation to execute.")
 
     args = parser.parse_args()
     input_folder = args.input
     function = args.function
-    output_file = args.output
+    output_folder = args.output
 
     # Check input folder.
     data_io.check_directory(input_folder)
@@ -29,8 +30,9 @@ if __name__ == '__main__':
         fnf_err = f"No JSON files in {input_folder}"
         raise FileNotFoundError(fnf_err)
 
+    #TODO: priority: low: re-factor to handle image/video files with no JSON sidecar file.
+
     json_files: List[str] = [f for f in os.listdir(input_folder) if f.endswith('json')]
-    metadata_list = list()
 
     for j in json_files:
         # For each JSON file, check if the corresponding image file is available.
@@ -39,13 +41,13 @@ if __name__ == '__main__':
         if j != 'metadata.json':
             # Ignore the metadata JSON for the whole album.
             data_io.check_file(file_path)
-
+            # Parse Google Photos JSON file.
             metadata_dict = gphotos_json.parse_json(os.path.join(input_folder, j))
-            metadata_list.append(metadata_dict)
+            # Run geo-location.
+            metadata_dict = geolocation.geolocate_dict(metadata_dict, 'mygalleryloc')
+            # Store metadata for each file.
+            metadata_file = os.path.join(output_folder, json_prefix + '_meta.json')
+            with open(metadata_file, 'w') as f:
+                json.dump(metadata_dict, f, indent=4)
 
-    metadata_df = pd.DataFrame(metadata_list)
-    metadata_df.to_csv(output_file, encoding='utf-8', index=False, header=True)
-
-
-
-
+            
