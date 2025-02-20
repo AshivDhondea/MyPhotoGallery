@@ -12,11 +12,13 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--input", type=str, required=True, help="Google Photos folder.")
     parser.add_argument("-o", "--output", type=str, required=True, help="Gallery metadata folder")
     parser.add_argument("-f", "--function", choices=['i', 'index'], required=True, help="Operation to execute.")
+    parser.add_argument("-u", "--useragent", type=str, required=True, help="User agent for geolocation")
 
     args = parser.parse_args()
     input_folder = args.input
     function = args.function
     output_folder = args.output
+    user_agent = args.useragent
 
     # Check input folder.
     data_io.check_directory(input_folder)
@@ -44,7 +46,7 @@ if __name__ == '__main__':
             # Parse Google Photos JSON file.
             metadata_dict = gphotos_json.parse_json(os.path.join(input_folder, j))
             # Run geo-location.
-            metadata_dict = geolocation.geolocate_dict(metadata_dict, 'mygalleryloc')
+            metadata_dict = geolocation.geolocate_dict(metadata_dict, user_agent)
             # Store metadata for each file.
             metadata_file = os.path.join(output_folder, json_prefix + '_meta.json')
             with open(metadata_file, 'w') as f:

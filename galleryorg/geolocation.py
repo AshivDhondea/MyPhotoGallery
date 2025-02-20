@@ -3,8 +3,6 @@ from geopy.extra.rate_limiter import RateLimiter
 from geopy.geocoders import Nominatim
 
 
-
-
 def city_state_country(coord, user_agent):
     geolocator = Nominatim(user_agent=user_agent)
     geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
