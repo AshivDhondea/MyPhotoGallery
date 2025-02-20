@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 
 
@@ -10,7 +11,18 @@ def parse_json(file_path):
     for key in output_dict.keys():
         if key in photo_dict.keys():
             if key == 'photoTakenTime':
-                output_dict['photoTakenTime'] = photo_dict['photoTakenTime']['formatted']
+                photo_time = photo_dict["photoTakenTime"]["formatted"]
+                photo_time_split = photo_time.split(", ")
+                photo_date = datetime.strptime(f"{photo_time_split[0]} {photo_time_split[1]}", '%b %d %Y').date()
+
+                output_dict['photoTakenTime'] = {
+                    "year": photo_date.year,
+                    "month": photo_date.month,
+                    "day": photo_date.day,
+                    "formatted": photo_time
+                }
+
+
             #elif key == 'geoData':
             #    output_dict['geoData'] = photo_dict['geoData']#[(k, v) for k, v in photo_dict['geoData'].items()]
             else:
