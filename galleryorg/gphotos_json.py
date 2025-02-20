@@ -11,8 +11,8 @@ def parse_json(file_path):
         if key in photo_dict.keys():
             if key == 'photoTakenTime':
                 output_dict['photoTakenTime'] = photo_dict['photoTakenTime']['formatted']
-            elif key == 'geoData':
-                output_dict['geoData'] = [(k, v) for k, v in photo_dict['geoData'].items()]
+            #elif key == 'geoData':
+            #    output_dict['geoData'] = photo_dict['geoData']#[(k, v) for k, v in photo_dict['geoData'].items()]
             else:
                 output_dict[key] = photo_dict[key]
 
